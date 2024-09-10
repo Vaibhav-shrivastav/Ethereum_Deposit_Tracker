@@ -6,9 +6,11 @@ This project tracks Ethereum deposits on the Beacon Deposit Contract and provide
 
 1. [Project Description](#project-description)
 2. [Prerequisites](#prerequisites)
-3. [Setup Instructions](#setup-instructions)
-4. [Configuration](#configuration)
-5. [Running the Application](#running-the-application)
+3. [Project Structure](#project-structure)
+4. [Setup Instructions](#setup-instructions)
+5. [Configuration](#configuration)
+6. [Running the Application](#running-the-application)
+7. [Telegram Bot Integration](#telegram-bot-integration)
 
 ## Project Description
 
@@ -19,6 +21,25 @@ This project tracks Ethereum deposits on the Beacon Deposit Contract. It collect
 - Docker
 - Docker Compose
 - Node.js
+
+## Project Structure
+
+### File and Directory Descriptions
+
+- **`src/app.js`**: Main application entry point. Monitors ETH deposits, updates metrics, and sends notifications.
+- **`src/db.js`**: Database connection configuration for MongoDB.
+- **`src/fetchDeposits.js`**: Module for fetching deposit transactions from the Ethereum network.
+- **`src/metrics.js`**: Defines Prometheus metrics and sets up the metrics endpoint.
+- **`src/saveDeposits.js`**: Module for saving deposit details to MongoDB.
+- **`src/notifications.js`**: Module for sending notifications via Telegram Bot(deposit-alert).
+- **`models/Deposit.js`**: Mongoose model for the deposit schema in MongoDB.
+- **`logs/combined.log`**: Log file for application logs.
+- **`docker-compose.yml`**: Docker Compose configuration file for setting up the development environment with MongoDB, Grafana, Prometheus, and your application.
+- **`prometheus.yml`**: Prometheus configuration file for scraping metrics from various sources.
+- **`.env`**: Environment configuration file containing sensitive information and configuration settings.
+- **`package.json`**: Node.js package configuration file, including dependencies and scripts.
+- **`README.md`**: Project documentation file.
+
 
 ## Setup Instructions
 
@@ -59,7 +80,7 @@ This will start the following services:
 - Grafana
 - Prometheus
 - MongoDB Exporter
-- Your Ethereum Deposit Tracking Application
+- Ethereum Deposit Tracking Application
 
 ### 4. Access the Services
 
@@ -88,7 +109,30 @@ This will start the following services:
 
 The application runs as a Docker container and will automatically start with Docker Compose.
 
-## Telegram Bot Screenshot
+
+## Telegram Bot Integration
+
+The Ethereum Deposit Tracker includes integration with Telegram for alerting users about new deposits. Here's how to set it up and use it:
+
+### Setting Up the Telegram Bot
+
+1. **Create a Telegram Bot**:
+   - Open the Telegram app and search for the "BotFather" bot.
+   - Start a chat with BotFather and use the `/newbot` command to create a new bot.
+   - Follow the instructions to get your new bot's API token.
+
+2. **Obtain Your Chat ID**:
+   - Start a chat with your bot and send a message to it.
+   - Visit `https://api.telegram.org/bot<YOUR_BOT_TOKEN>/getUpdates` to find your chat ID in the response.
+
+### Configuration
+
+Add the following environment variables to your `.env` file:
+
+```env
+TELEGRAM_BOT_TOKEN=your_bot_token_here
+TELEGRAM_CHAT_ID=your_chat_id_here
+```
 
 Here is a screenshot of the Telegram bot functionality:
 - Notifies when deposit transaction is detected.
