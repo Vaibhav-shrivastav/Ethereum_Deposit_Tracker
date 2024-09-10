@@ -1,0 +1,63 @@
+version: '3.7'
+
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mongodb
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: "password"
+    volumes:
+      - grafana_data:/var/lib/grafana
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - prometheus_data:/prometheus
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+
+  mongodb_exporter:
+    image: bitnami/mongodb-exporter:latest
+    container_name: mongodb_exporter
+    ports:
+      - "9216:9216"
+    environment:
+      MONGODB_URI: "mongodb://mongodb:27017"
+
+  app:
+    build: .
+    container_name: eth_deposit_app
+    ports:
+      - "3001:3001"  
+    depends_on:
+      - mongodb
+      - prometheus
+      - grafana
+    environment:
+      - RPC_URL=${RPC_URL}
+      - BEACON_DEPOSIT_CONTRACT=${BEACON_DEPOSIT_CONTRACT}
+      - METRICS_PORT=${METRICS_PORT}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}
+      - ALCHEMY_API_KEY=${ALCHEMY_API_KEY}
+      - MONGODB_URI=${MONGODB_URI}
+    volumes:
+      - .:/app
+volumes:
+  mongodb_data:
+  grafana_data:
+  prometheus_data:
