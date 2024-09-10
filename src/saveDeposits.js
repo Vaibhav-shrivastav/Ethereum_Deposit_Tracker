@@ -16,7 +16,7 @@ async function saveDepositDetails(deposit) {
     });
 
     await newDeposit.save();
-    logger.info("Deposit details saved successfully.");
+    logger.info("Deposit details saved successfully");
   } catch (error) {
     logger.error(`Error saving deposit details to MongoDB: ${error.message}`);
   }
