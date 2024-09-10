@@ -1,10 +1,5 @@
-const ethers = require("ethers");
-const { AlchemyProvider } = require("@ethersproject/providers");
 const Deposit = require("../models/Deposit");
 const logger = require("./logger");
-require("dotenv").config({ path: "../.env" });
-
-const provider = new AlchemyProvider("homestead", process.env.ALCHEMY_API_KEY);
 
 async function saveDepositDetails(deposit) {
   try {
@@ -14,30 +9,20 @@ async function saveDepositDetails(deposit) {
 
     console.log("Deposit Object: ", deposit);
 
-    const block = await provider.getBlock(deposit.blockNumber);
-    const blockTimestamp = new Date(block.timestamp * 1000);
-
-    if (!deposit.gasPrice || !deposit.gasLimit) {
-      throw new Error("Missing gasPrice or gasLimit in deposit transaction");
-    }
-
-    console.log("Gas Price: ", deposit.gasPrice.toString());
-    console.log("Gas Limit: ", deposit.gasLimit.toString());
-
-    const gasPriceBigNumber = ethers.BigNumber.from(deposit.gasPrice);
-    const gasLimitBigNumber = ethers.BigNumber.from(deposit.gasLimit);
-
-    const feeInWei = gasPriceBigNumber.mul(gasLimitBigNumber);
-    const fee = ethers.formatEther(feeInWei);
-
+    // Since blockTimestamp, gasPrice, gasLimit, and fee have already been processed in fetchDeposits.js
     const newDeposit = new Deposit({
       blockNumber: deposit.blockNumber,
-      blockTimestamp: blockTimestamp,
-      fee: fee,
+      blockTimestamp: deposit.blockTimestamp,  // Use pre-processed block timestamp
+      fee: deposit.fee,  // Use pre-calculated fee from fetchDeposits.js
       hash: deposit.hash,
-      pubkey: deposit.from,
+      pubkey: deposit.pubkey,  // Use the pubkey (assumed to be 'from')
     });
 
+    console.log("Value:", deposit.value);
+    console.log("Fee:", deposit.fee);
+
+
+    // Save the deposit details to MongoDB
     await newDeposit.save();
     logger.info("Deposit details saved successfully.");
   } catch (error) {
